@@ -5,19 +5,22 @@ import os
 import shutil
 
 import numpy as np
+import cv2
 import socketio
 import eventlet
 import eventlet.wsgi
 from PIL import Image
 from flask import Flask
 from io import BytesIO
-
+from scipy.misc import imresize
 from keras.models import load_model
-
+from generator import preprocess
+import helper
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
+
 
 
 @sio.on('telemetry')
@@ -28,13 +31,17 @@ def telemetry(sid, data):
         # The current throttle of the car
         throttle = data["throttle"]
         # The current speed of the car
-        speed = data["speed"]
+        speed = float(data["speed"])
         # The current image from the center camera of the car
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
-        image_array = np.asarray(image)
-        steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
-        throttle = 0.2
+        image_array = helper.preprocess_image(np.asarray(image),training=False)
+        #image_array = helper.preprocess(np.asarray(image))
+        transformed_image_array = image_array[None, :, :, :]
+        #cv2.imshow(image)
+        steering_angle = float(model.predict(transformed_image_array, batch_size=1))
+        # Reduce speed for smooth driving. Drive smoother and steadily in real life as well ;)
+        throttle = (10.0 - speed)*0.2
         print(steering_angle, throttle)
         send_control(steering_angle, throttle)
 
