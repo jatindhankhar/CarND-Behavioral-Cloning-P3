@@ -7,6 +7,8 @@ from keras.layers.core import Dense,Activation,Flatten
 from keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from keras.callbacks import TensorBoard
+import matplotlib.pyplot as plt
+
 
 
 
@@ -48,15 +50,27 @@ def train():
     # Train the model
     #samples_per_epoch = (20000//128)*128
     print("Training model ...")
-    history = model.fit_generator(
+    tbCallback = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+    history_object = model.fit_generator(
     helper.data_generator(df_train,training=True),
     samples_per_epoch=len(df_train),
-    nb_epoch=10,
+    nb_epoch=5,
     validation_data=helper.data_generator(df_valid,training=False),
-    nb_val_samples=len(df_valid))
-    #TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
+    nb_val_samples=len(df_valid), callbacks=[tbCallback])
+
     save_model(model)
     print("Done ... :)")
+    print("visualizing ...")
+    print(history_object.history.keys())
+
+### plot the training and validation loss for each epoch
+    plt.plot(history_object.history['loss'])
+    plt.plot(history_object.history['val_loss'])
+    plt.title('model mean squared error loss')
+    plt.ylabel('mean squared error loss')
+    plt.xlabel('epoch')
+    plt.legend(['training set', 'validation set'], loc='upper right')
+    plt.show()
 
 
 if __name__ == "__main__" :
