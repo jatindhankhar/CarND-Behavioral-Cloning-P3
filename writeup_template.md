@@ -151,3 +151,11 @@ I finally randomly shuffled the data set and put 20% of the data into a validati
 `df_train, df_valid = train_test_split(df, test_size=0.2)`
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by four days of tweaking. I used an adam optimizer with a learning rate of `0.0001`
+
+## Result
+[
+![Sample](./examples/Udacity_Behavioral_Cloning_Track_1.gif)
+](https://www.youtube.com/watch?v=HeMjNjKsWc4)
+
+
+ ![Sample](./examples/Udacity_Behavioral_Cloning_Track_1.gif)
